@@ -88,18 +88,22 @@ foreach ($frame_arr as $key => $frame) {
 $return_arr = [];
 $score_total = 0;
 foreach ($score_arr as $key => $score) {
-    if ($score['frameScore'] == 'strike') {
+    if ($score['frameScore'] == 'strike' && !($score['first'] == 0 && $score['second'] == 0)) {
         $score['frameScore'] = updateStrikeScore($key, $score_arr);
     }
-    if ($score['frameScore'] == 'spare') {
+    if ($score['frameScore'] == 'spare' && !($score['first'] == 0 && $score['second'] == 0)) {
         $score['frameScore'] = updateSpareScore($key, $score_arr);
     }
-    if (!$score['frameScore']) {
+    if ($score['frameScore'] === false) {
         $running_total = false;
     } else {
         $score_total = $score_total + $score['frameScore'];
         $running_total = $score_total;
     }
+    // if ($score['first'] == 0 && $score['second'] == 0) {
+    //     $score_total = 10;
+    //     $running_total = $score_total;
+    // }
     
     $return_arr["$key"] = [
         'first' => $score['first'],
