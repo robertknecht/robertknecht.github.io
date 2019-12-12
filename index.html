@@ -188,7 +188,7 @@ function submitFrame() {
         }
         $.ajax({
             type: "POST",
-            url: 'process-scores.php',
+            url: '/process-scores.php',
             data: jsonObj,
             success: function(result) {
                 result = JSON.parse(result);
