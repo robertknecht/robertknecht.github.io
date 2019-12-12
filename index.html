@@ -3,10 +3,60 @@
 <head>
 <title>Bowling Score Keeper</title>
 <style>
-
+    h1 {
+        text-align: center;
+    }
+    span, button {
+        margin-left: 20px;
+    }
 </style>
 </head>  
 <body>
-<h1>Bowing Score Keeper</h1>
+<h1>Bowling Score Keeper</h1>
+<!-- record and submit score -->
+<span>First Shot:</span>
+<select id="select-shot-1">
+    <option class="shot-1" value="0">0</option>
+    <option class="shot-1" value="1">1</option>
+    <option class="shot-1" value="2">2</option>
+    <option class="shot-1" value="3">3</option>
+    <option class="shot-1" value="4">4</option>
+    <option class="shot-1" value="5">5</option>
+    <option class="shot-1" value="6">6</option>
+    <option class="shot-1" value="7">7</option>
+    <option class="shot-1" value="8">8</option>
+    <option class="shot-1" value="9">9</option>
+    <option class="shot-1" value="10">10</option>
+</select>
+<span>Second Shot:</span>
+<select id="select-shot-2">
+    <option class="shot-2" value="0">0</option>
+    <option class="shot-2" value="1">1</option>
+    <option class="shot-2" value="2">2</option>
+    <option class="shot-2" value="3">3</option>
+    <option class="shot-2" value="4">4</option>
+    <option class="shot-2" value="5">5</option>
+    <option class="shot-2" value="6">6</option>
+    <option class="shot-2" value="7">7</option>
+    <option class="shot-2" value="8">8</option>
+    <option class="shot-2" value="9">9</option>
+    <option class="shot-2" value="10">10</option>
+</select>
+<button id="submit">Submit</button>
+<!-- retrieve and render score for each frame -->
+
+
+<script src="jquery.js"></script>
+<script>
+function disable_shot_2_options(score1) {
+    // loop through and disable shot-2's that need it
+}
+function submitFrame() {
+    // ajax stuff
+}
+function renderScoreBox {
+    // take return from submitFrame() and render scoreBox from each JSON object
+}
+</script>
 </body>
 </html>
