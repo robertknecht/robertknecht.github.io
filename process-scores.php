@@ -27,6 +27,9 @@ fwrite($file, $score . "\n");
 fclose($file);
 $frame_arr = explode("\n", file_get_contents("make-shift-database.txt"));
 array_pop($frame_arr);
+if (count($frame_arr) > 9) {
+    unlink('make-shift-database.txt');
+}
 $score_arr = [];
 foreach ($frame_arr as $key => $frame) {
     $frame_split = explode(',', $frame);
@@ -44,7 +47,7 @@ foreach ($frame_arr as $key => $frame) {
 $score_total = 0;
 foreach ($score_arr as $key => $score) {
     if ($score['frameScore'] == 'strike') {
-        
+
     }
 }
 echo json_encode($score_arr);
