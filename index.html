@@ -9,6 +9,72 @@
     span, button {
         margin-left: 20px;
     }
+    .scores {
+        margin-top: 80px;
+    }
+    .scorebox {
+        width: 100px;
+        height: 100px;
+        border: 1px solid #666;
+        float: left;
+    }
+    .first-slot {
+        font-size: 22px;
+        padding: 10px;
+        height: 18px;
+        text-align: center;
+        width: 18px;
+        float: left;
+    }
+    .second-slot {
+        font-size: 22px;
+        padding: 9px;
+        height: 18px;
+        text-align: center;
+        width: 12px;
+        float: left;
+        margin-left: 30px;
+        border-left: 1px solid #999;
+        border-bottom: 1px solid #999;
+    }
+    .second-slot.last-frame {
+        margin-left: -2px;
+    }
+    .third-slot {
+        font-size: 22px;
+        padding: 9px;
+        height: 18px;
+        text-align: center;
+        width: 12px;
+        float: left;
+        display: none;
+        border-left: 1px solid #999;
+        border-bottom: 1px solid #999;
+    }
+    .third-slot.last-frame {
+        display: inline-block;
+    }
+    .running-total {
+        font-size: 34px;
+        text-align: right;
+        margin-right: 36px;
+    }
+    .frame-number {
+        padding-left: 6px;
+        text-decoration: underline;
+    }
+    #desc-shot-3, #select-shot-3 {
+        display: none;
+    }
+    #refresh {
+        display: none;
+        margin-top: 170px;
+        color: #ffffff;
+        font-size: 27px;
+        padding: 15px;
+        border-radius: 10px;
+        background: #3b71c1;
+    }
 </style>
 </head>  
 <body>
@@ -29,96 +95,167 @@
     <option value="10">10</option>
 </select>
 <span>Second Shot:</span>
-<select id="select-shot-2" disabled>
-    <option id="shot-2-0" value="0">0</option>
-    <option id="shot-2-1" value="1">1</option>
-    <option id="shot-2-2" value="2">2</option>
-    <option id="shot-2-3" value="3">3</option>
-    <option id="shot-2-4" value="4">4</option>
-    <option id="shot-2-5" value="5">5</option>
-    <option id="shot-2-6" value="6">6</option>
-    <option id="shot-2-7" value="7">7</option>
-    <option id="shot-2-8" value="8">8</option>
-    <option id="shot-2-9" value="9">9</option>
-    <option id="shot-2-10" value="10">10</option>
+<select id="select-shot-2">
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+</select>
+<span id="desc-shot-3">Third?:</span>
+<select id="select-shot-3">
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
 </select>
 <button id="submit">Submit</button>
-<!-- retrieve and render score for each frame -->
-
+<div class="scores"></div>
+<div>
+    <button id="refresh">Play Again!</button>
+</div>
 
 <script src="jquery.js"></script>
 <script>
+var messages = {
+    over_ten: "Maybe you're new to bowling. Each frame (except possibly the last) has only 10 pins. You can't knock down more than that. Try again.",
+    not_that_many_left: "Sorry, if you leave pins standing from your first shot, you can't knock down more than are left over. Try again.",
+    no_third_turn: "I'm afraid you don't get a third turn unless you've knocked down at least 10 pins in your first two tries. Your third turn should remain at 0. Try again."
+}
 // FUNCTIONS
-function toggle_shot_2() {
-    if ($('#select-shot-2')[0].hasAttribute('disabled')) {
-        $('#select-shot-2').removeAttr('disabled');
-    } else {
-        $('#select-shot-2').attr('disabled', true);
-    }
-}
-function enable_el(el) {
-    if (el[0].hasAttribute('disabled')) {
-        el.removeAttr('disabled');
-    }
-}
-function control_shot_2() {
-    var strike = $('#select-shot-1')[0].value == '10';
-    var shot2disabled = $('#select-shot-2')[0].hasAttribute('disabled');
-    if (strike && !shot2disabled) {
-        toggle_shot_2();
-    } else if (shot2disabled) {
-        toggle_shot_2();
-    }
-}
-function disable_shot_2_options(score1) {
-    // loop through and disable shot-2's that need it
-    $('#select-shot-2').children().removeAttr('disabled');
-    var max_score = 10 - parseInt(score1);
-    for (var i = 10; i > max_score; i--) {
-        $('#shot-2-' + i).attr('disabled', true); 
-    }
-}
 function submitFrame() {
-    // ajax stuff
+    var is_last_frame = $('#select-shot-3')[0].style.display == 'inline-block';
     var score1 = $('#select-shot-1')[0].value;
     var score2 = $('#select-shot-2')[0].value;
-    var jsonObj = {
-        scores: []
-    };
-    var strike = score1 == '10';
-    if (strike) {
-        jsonObj.scores = [
-            score1
-        ];
-    } else {
-        jsonObj.scores = [
-            score1,
-            score2
-        ];
+    var score3 = false;
+    if (is_last_frame && parseInt(score1) + parseInt(score2) >= 10) {
+        score3 = $('#select-shot-3')[0].value;
     }
-    $.ajax({
-        type: "POST",
-        url: 'process-scores.php',
-        data: jsonObj,
-        success: function(result) {
-            console.log(result);
-            result = JSON.parse(result);
-            console.log(result);
+    if (parseInt(score1) + parseInt(score2) > 10 && !is_last_frame) {
+        alert(messages.over_ten);
+        $('#select-shot-1')[0].value = '0';
+        $('#select-shot-2')[0].value = '0';
+    } else if (is_last_frame && parseInt(score2) != 10 && parseInt(score2) > (10 - parseInt(score1))) {
+        alert(messages.not_that_many_left);
+        $('#select-shot-1')[0].value = '0';
+        $('#select-shot-2')[0].value = '0';
+        $('#select-shot-3')[0].value = '0';
+    } else if (is_last_frame && parseInt(score1) + parseInt(score2) < 10 && $('#select-shot-3')[0].value != '0') {
+        alert(messages.no_third_turn);
+        $('#select-shot-1')[0].value = '0';
+        $('#select-shot-2')[0].value = '0';
+        $('#select-shot-3')[0].value = '0';
+    } else {
+        var jsonObj = {
+            scores: []
+        };
+        var strike = score1 == '10';
+        if (is_last_frame) {
+            jsonObj.scores = [
+                score1,
+                score2,
+                score3
+            ];
         }
-    })
+        else if (strike) {
+            jsonObj.scores = [
+                score1
+            ];
+        } else if (score3) {
+            jsonObj.scores = [
+                score1,
+                score2,
+                score3
+            ]  
+        } else {
+            jsonObj.scores = [
+                score1,
+                score2
+            ];
+        }
+        $.ajax({
+            type: "POST",
+            url: 'process-scores.php',
+            data: jsonObj,
+            success: function(result) {
+                result = JSON.parse(result);
+                renderScoreBoxes(result);
+            }
+        });
+    }
 }
-function renderScoreBoxes(scoreBoxArr) {
-    // take return from submitFrame() and render scoreBox from each JSON object
+function renderScoreBoxes(scoresArr) {
+    $('.scores').empty();
+    if (scoresArr.length >= 9) {
+        $('#select-shot-3').css('display', 'inline-block');
+        $('#desc-shot-3').css('display', 'inline-block');
+    } else {
+        $('#select-shot-3').css('display', 'none');
+        $('#desc-shot-3').css('display', 'none');
+    }
+    scoresArr.forEach(function(score, key) {
+        if (key == 9) {
+            $('#refresh').css('display', 'inline-block');
+        }
+        var first = score.first;
+        var second = score.second;
+        var third = '';
+        if (score.third || score.third == '0') {
+            third = score.third;
+            if (third == false || third == 'false') {
+                third = '0';
+            }
+        }
+        var running_total = (score.running_total) ? score.running_total : '&nbsp;';
+        if (first == '10') {
+            first = '';
+            second = 'X';
+        }
+        if (parseInt(first) + parseInt(second) == 10) {
+            second = '/';
+        }
+        if (key == 9 && score.first == '10') {
+            first = 'X';
+        }
+        if (key == 9 && score.first == '10' && score.second == '10') {
+            second = 'X';
+        }
+        if (key == 9 && score.third == '10') {
+            third = 'X';
+        }
+        var box = document.createElement('div');
+        var second_slot = "second-slot";
+        var third_slot = "third-slot";
+        if (key == 9) {
+            second_slot += " last-frame";
+            third_slot += " last-frame";
+        }
+        box.setAttribute('class', 'scorebox');
+        box.innerHTML = "<div class='first-slot'>" + first + "</div>" + 
+            "<div class='" + second_slot + "'>" + second + "</div>" +
+            "<div class='" + third_slot + "'>" + third + "</div>" + "<div class='running-total'>" + running_total + "</div>" +
+            "<div class='frame-number'>" + (parseInt(key) + 1) + "</div>";
+        $('.scores')[0].append(box);
+    });
 }
-
-// EVENTS
-$('#select-shot-1').change(function() {
-    control_shot_2();
-    var score1 = $('#select-shot-1')[0].value;
-    disable_shot_2_options(score1);
-});
 $('#submit').click(function() {
     submitFrame();
+});
+$('#refresh').click(function() {
+    window.location.reload(false); 
 });
 </script>
 </body>
