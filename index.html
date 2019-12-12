@@ -187,7 +187,7 @@ function submitFrame() {
             ];
         }
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: 'process-scores.php',
             data: jsonObj,
             success: function(result) {
@@ -251,6 +251,7 @@ function renderScoreBoxes(scoresArr) {
         $('.scores')[0].append(box);
     });
 }
+// HANDLE EVENTS
 $('#submit').click(function() {
     submitFrame();
 });
