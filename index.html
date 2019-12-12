@@ -16,31 +16,31 @@
 <!-- record and submit score -->
 <span>First Shot:</span>
 <select id="select-shot-1">
-    <option class="shot-1" value="0">0</option>
-    <option class="shot-1" value="1">1</option>
-    <option class="shot-1" value="2">2</option>
-    <option class="shot-1" value="3">3</option>
-    <option class="shot-1" value="4">4</option>
-    <option class="shot-1" value="5">5</option>
-    <option class="shot-1" value="6">6</option>
-    <option class="shot-1" value="7">7</option>
-    <option class="shot-1" value="8">8</option>
-    <option class="shot-1" value="9">9</option>
-    <option class="shot-1" value="10">10</option>
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
 </select>
 <span>Second Shot:</span>
-<select id="select-shot-2">
-    <option class="shot-2" value="0">0</option>
-    <option class="shot-2" value="1">1</option>
-    <option class="shot-2" value="2">2</option>
-    <option class="shot-2" value="3">3</option>
-    <option class="shot-2" value="4">4</option>
-    <option class="shot-2" value="5">5</option>
-    <option class="shot-2" value="6">6</option>
-    <option class="shot-2" value="7">7</option>
-    <option class="shot-2" value="8">8</option>
-    <option class="shot-2" value="9">9</option>
-    <option class="shot-2" value="10">10</option>
+<select id="select-shot-2" disabled>
+    <option id="shot-2-0" value="0">0</option>
+    <option id="shot-2-1" value="1">1</option>
+    <option id="shot-2-2" value="2">2</option>
+    <option id="shot-2-3" value="3">3</option>
+    <option id="shot-2-4" value="4">4</option>
+    <option id="shot-2-5" value="5">5</option>
+    <option id="shot-2-6" value="6">6</option>
+    <option id="shot-2-7" value="7">7</option>
+    <option id="shot-2-8" value="8">8</option>
+    <option id="shot-2-9" value="9">9</option>
+    <option id="shot-2-10" value="10">10</option>
 </select>
 <button id="submit">Submit</button>
 <!-- retrieve and render score for each frame -->
@@ -48,15 +48,78 @@
 
 <script src="jquery.js"></script>
 <script>
+// FUNCTIONS
+function toggle_shot_2() {
+    if ($('#select-shot-2')[0].hasAttribute('disabled')) {
+        $('#select-shot-2').removeAttr('disabled');
+    } else {
+        $('#select-shot-2').attr('disabled', true);
+    }
+}
+function enable_el(el) {
+    if (el[0].hasAttribute('disabled')) {
+        el.removeAttr('disabled');
+    }
+}
+function control_shot_2() {
+    var strike = $('#select-shot-1')[0].value == '10';
+    var shot2disabled = $('#select-shot-2')[0].hasAttribute('disabled');
+    if (strike && !shot2disabled) {
+        toggle_shot_2();
+    } else if (shot2disabled) {
+        toggle_shot_2();
+    }
+}
 function disable_shot_2_options(score1) {
     // loop through and disable shot-2's that need it
+    $('#select-shot-2').children().removeAttr('disabled');
+    var max_score = 10 - parseInt(score1);
+    for (var i = 10; i > max_score; i--) {
+        $('#shot-2-' + i).attr('disabled', true); 
+    }
 }
 function submitFrame() {
     // ajax stuff
+    var score1 = $('#select-shot-1')[0].value;
+    var score2 = $('#select-shot-2')[0].value;
+    var jsonObj = {
+        scores: []
+    };
+    var strike = score1 == '10';
+    if (strike) {
+        jsonObj.scores = [
+            score1
+        ];
+    } else {
+        jsonObj.scores = [
+            score1,
+            score2
+        ];
+    }
+    $.ajax({
+        type: "POST",
+        url: 'process-scores.php',
+        data: jsonObj,
+        success: function(result) {
+            console.log(result);
+            result = JSON.parse(result);
+            console.log(result);
+        }
+    })
 }
-function renderScoreBox {
+function renderScoreBoxes(scoreBoxArr) {
     // take return from submitFrame() and render scoreBox from each JSON object
 }
+
+// EVENTS
+$('#select-shot-1').change(function() {
+    control_shot_2();
+    var score1 = $('#select-shot-1')[0].value;
+    disable_shot_2_options(score1);
+});
+$('#submit').click(function() {
+    submitFrame();
+});
 </script>
 </body>
 </html>
