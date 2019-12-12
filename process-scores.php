@@ -18,7 +18,7 @@ function getFrameScore($index, $score1, $score2 = false, $score3 = false) {
     }
     return $score1 + $score2;
 }
-function checkStrike($index, $score_arr) {
+function updateStrikeScore($index, $score_arr) {
     if ($index == 10) {
         return 10 + $score_arr[$index]['second'] + $score_arr[$index]['third'];
     }
@@ -38,7 +38,7 @@ function checkStrike($index, $score_arr) {
         return false;
     }
 }
-function checkSpare($index, $score_arr) {
+function updateSpareScore($index, $score_arr) {
     if ($index == 10) { // i.e. we're on the 10th frame
         return 10 + $score_arr[$index]['third'];
     }
@@ -89,10 +89,10 @@ $return_arr = [];
 $score_total = 0;
 foreach ($score_arr as $key => $score) {
     if ($score['frameScore'] == 'strike') {
-        $score['frameScore'] = checkStrike($key, $score_arr);
+        $score['frameScore'] = updateStrikeScore($key, $score_arr);
     }
     if ($score['frameScore'] == 'spare') {
-        $score['frameScore'] = checkSpare($key, $score_arr);
+        $score['frameScore'] = updateSpareScore($key, $score_arr);
     }
     if (!$score['frameScore']) {
         $running_total = false;

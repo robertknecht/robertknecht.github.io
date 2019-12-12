@@ -136,6 +136,11 @@ var messages = {
     no_third_turn: "I'm afraid you don't get a third turn unless you've knocked down at least 10 pins in your first two tries. Your third turn should remain at 0. Try again."
 }
 // FUNCTIONS
+function clearValues() {
+    $('#select-shot-1')[0].value = '0';
+    $('#select-shot-2')[0].value = '0';
+    $('#select-shot-3')[0].value = '0';
+}
 function submitFrame() {
     var is_last_frame = $('#select-shot-3')[0].style.display == 'inline-block';
     var score1 = $('#select-shot-1')[0].value;
@@ -146,18 +151,13 @@ function submitFrame() {
     }
     if (parseInt(score1) + parseInt(score2) > 10 && !is_last_frame) {
         alert(messages.over_ten);
-        $('#select-shot-1')[0].value = '0';
-        $('#select-shot-2')[0].value = '0';
+        clearValues();
     } else if (is_last_frame && parseInt(score2) != 10 && parseInt(score2) > (10 - parseInt(score1))) {
         alert(messages.not_that_many_left);
-        $('#select-shot-1')[0].value = '0';
-        $('#select-shot-2')[0].value = '0';
-        $('#select-shot-3')[0].value = '0';
+        clearValues();
     } else if (is_last_frame && parseInt(score1) + parseInt(score2) < 10 && $('#select-shot-3')[0].value != '0') {
         alert(messages.no_third_turn);
-        $('#select-shot-1')[0].value = '0';
-        $('#select-shot-2')[0].value = '0';
-        $('#select-shot-3')[0].value = '0';
+        clearValues();
     } else {
         var jsonObj = {
             scores: []
